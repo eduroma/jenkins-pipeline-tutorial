@@ -10,7 +10,10 @@ pipeline {
     stages {
         stage('Clean') {
             when {
-                expression { params.CLEAN_BEFORE_BUILD }
+                anyOf {
+                    branch 'master'
+                    expression { params.CLEAN_BEFORE_BUILD }
+                }
             }
                         
             steps {
@@ -32,6 +35,10 @@ pipeline {
         }
 
         stage('Deploy') {
+            when {
+                branch 'master'
+            }
+            
             steps {
                 script {
                     def artifactId = readPom('project.artifactId')
