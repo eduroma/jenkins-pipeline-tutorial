@@ -3,17 +3,29 @@ pipeline {
         label 'maven'
     }
 
+    parameters {
+        booleanParam(name: 'CLEAN_BEFORE_BUILD', description: 'Limpar o workspace antes de rodar o build.' )
+    }
+
     stages {
+        stage('Clean') {
+            when {
+                expression { params.CLEAN_BEFORE_BUILD }
+            }
+                        
+            steps {
+                echo 'Stage Clean'
+            }
+        }
+        
         stage('Build') {
             steps {
-                // One or more steps need to be included within the steps block.    
                 echo 'Stage Build'
             }
         }
 
         stage('Test') {
             steps {
-                // One or more steps need to be included within the steps block.
                 echo 'Stage Test'
             }
   }
