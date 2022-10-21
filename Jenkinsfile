@@ -7,6 +7,12 @@ pipeline {
         booleanParam(name: 'CLEAN_BEFORE_BUILD', description: 'Limpar o workspace antes de rodar o build.' )
     }
 
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '7', numToKeepStr: '10'))
+        disableConcurrentBuilds(abortPrevious: true)
+          timeout(time: 10, unit: 'MINUTES')
+    }
+
     stages {
         stage('Clean') {
             when {
