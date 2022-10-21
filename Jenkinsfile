@@ -14,19 +14,19 @@ pipeline {
             }
                         
             steps {
-                sh 'mvn clean'
+                mvn('clean')
             }
         }
         
         stage('Build') {
             steps {
-                sh 'mvn compile'
+                mvn('compile')
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn verify'
+                mvn('verify')
                 junit 'target/surefire-reports/*.xml'
             }
         }
@@ -34,12 +34,22 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    def pom = readMavenPom(file: 'pom.xml')
-                    sh "./deploy.sh ${pom.getArtifactId()} ${pom.getVersion()}"
+                    def artifactId = readPom('project.artifactId')
+                    def version = readPom('project.version')
+
+                    sh "./deploy.sh ${artifactId} ${version}"
                 }
             }
         }
 
     }
 
+}
+
+def mvn(String args) {
+    sh "mvn --no-transfer-progress -B $args"
+}
+
+def readPom(String property) {
+    sh script: """mvn help:evaluate -Dexpression="${property}" -q -DforceStdout""", returnStdout: true
 }
