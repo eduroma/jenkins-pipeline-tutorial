@@ -36,7 +36,12 @@ pipeline {
         stage('Test') {
             steps {
                 mvn('verify')
-                junit 'target/surefire-reports/*.xml'
+            }
+
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
             }
         }
 
@@ -47,14 +52,20 @@ pipeline {
             
             steps {
                 script {
-                    def artifactId = readPom('project.artifactId')
-                    def version = readPom('project.version')
+                    artifactId = readPom('project.artifactId')
+                    version = readPom('project.version')
 
                     withCredentials([string(credentialsId: 'super-deploy-secret', variable: 'SUPER_CREDENTIALS')]) {
                         sh "./super-deploy.sh ${artifactId} ${version}"    // some block
                     }
-                    
-                    currentBuild.description = "Deploy completo do artefato ${artifactId} na versão ${version}"
+                }
+            }
+
+            post {
+                success {
+                    script {
+                        currentBuild.description = "Deploy completo do artefato ${artifactId} na versão ${version}"
+                    }
                 }
             }
         }
